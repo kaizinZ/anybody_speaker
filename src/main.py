@@ -40,7 +40,7 @@ model_assets_names = [
     name for name in os.listdir(model_assets_dir)
     if os.path.isdir(os.path.join(model_assets_dir, name))
 ]
-logger.info(model_assets_names)
+logger.info(f'available models: {model_assets_names}')
 
 default_model = "jun_ver_0"
 
@@ -175,8 +175,8 @@ def main():
         loaded_model = load_single_model(model_holder.get_model(args.tts, model_path))
         
         # 起動音声 (モデル読み込みが単一の場合のみ)
-        #text = "やあ。"
-        #sr, audio = generate_audio_single_speaker(text, loaded_model)
+        text = "やあ。"
+        sr, audio = generate_audio_single_speaker(text, loaded_model)
         #wavfile.write(init_voice_path, sr, audio)
         play_until_the_end(init_voice_path)
     
@@ -200,7 +200,7 @@ def main():
         else:
             sr, audio = generate_audio_single_speaker(ans_text, loaded_model)
         play_audio(sr, audio)
-        return
+
 
     # 使用例
     text = "やっぱ若いっていいなあでも、なんかそんなあれがまかり通るんだもんな、あいつ25くらいだろ？30なんだ。あそっか、止まるんだよ。まあ極論言っちゃえばもう本人の。"
@@ -213,4 +213,5 @@ def main():
     
     
 if __name__ == "__main__":
+    main()
     cProfile.run('main()')
