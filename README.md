@@ -2,6 +2,20 @@
 音声合成を兼ね備えたスマートスピーカー。
 学習すれば誰の声でもそっくりに、LLMを用いて会話できます。
 
+# Version
+python3.9.13
+
+## 動かし方
+```
+pip install -r requirements.txt
+cd src
+python3 initialize.py
+python3 main.py
+```
+
+```initialize.py```では日本語以外のモデルもダウンロードされる可能性があります。
+
+不要な場合は引数で指定するか、モデルを削除してください。
 
 ## download vosk_model
 オフラインで動作する音声認識モデルのダウンロードが必要です。
