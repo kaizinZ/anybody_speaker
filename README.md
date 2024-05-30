@@ -14,8 +14,21 @@ python3 main.py
 ```
 
 ```initialize.py```では日本語以外のモデルもダウンロードされる可能性があります。
-
 不要な場合は引数で指定するか、モデルを削除してください。
+
+gradioのインストールでhashに関するエラーが出たら以下を実行すると解決するかもしれません。
+```
+pip download gradio==4.23.0 -d .
+shasum -a 256 gradio-4.23.0-py3-none-any.whl
+```
+
+```
+pip download jieba==0.42.1 -d .
+shasum -a 256 jieba-0.42.1-py3-none-any.whl
+```
+
+[issue](https://github.com/pytorch/pytorch/issues/104598)にあるように、比較的大きいサイズのパッケージは失敗する可能性があるようです。
+
 
 ## download vosk_model
 オフラインで動作する音声認識モデルのダウンロードが必要です。
