@@ -42,13 +42,13 @@ fonttools==4.50.0
 frozenlist==1.4.1
 fsspec==2024.3.1
 future==1.0.0
-g2p-en==2.1.0 --hash=2a7aabf1fc7f270fcc3349881407988c9245173c2413debbe5432f4a4f31319f
+g2p-en==2.1.0 --hash=sha256:2a7aabf1fc7f270fcc3349881407988c9245173c2413debbe5432f4a4f31319f
 google-api-core==2.18.0
 google-auth==2.29.0
 google-cloud-speech==2.25.1
 googleapis-common-protos==1.63.0
 GPUtil==1.4.0
-gradio==4.23.0 --hash=a5be2485f967fed83b82395b345caee28dfd15cdfe7a487b5817f31803981b5a
+gradio==4.23.0 --hash=sha256:a5be2485f967fed83b82395b345caee28dfd15cdfe7a487b5817f31803981b5a
 gradio_client==0.14.0
 greenlet==3.0.3
 grpcio==1.62.1
