@@ -42,13 +42,13 @@ fonttools==4.50.0
 frozenlist==1.4.1
 fsspec==2024.3.1
 future==1.0.0
-g2p-en==2.1.0 --hash=sha256:2a7aabf1fc7f270fcc3349881407988c9245173c2413debbe5432f4a4f31319f
+g2p-en==2.1.0
 google-api-core==2.18.0
 google-auth==2.29.0
 google-cloud-speech==2.25.1
 googleapis-common-protos==1.63.0
 GPUtil==1.4.0
-gradio==4.23.0 --hash=sha256:a5be2485f967fed83b82395b345caee28dfd15cdfe7a487b5817f31803981b5a
+gradio==4.23.0
 gradio_client==0.14.0
 greenlet==3.0.3
 grpcio==1.62.1
@@ -56,7 +56,7 @@ grpcio-status==1.62.1
 h11==0.14.0
 httpcore==1.0.4
 httpx==0.27.0
-huggingface-hub==0.22.1
+huggingface_hub==0.22.1
 humanfriendly==10.0
 HyperPyYAML==1.2.2
 idna==3.6
@@ -64,7 +64,7 @@ importlib_metadata==7.1.0
 importlib_resources==6.4.0
 inflect==7.0.0
 jaconv==0.3.4
-jieba==0.42.1 --hash=sha256:ab43ed0da1810ff29fa5f6a513577ee4e66b256421cee16c72fb05c86667f593
+jieba==0.42.1
 Jinja2==3.1.3
 joblib==1.3.2
 jsonschema==4.21.1
@@ -84,6 +84,7 @@ MarkupSafe==2.1.5
 matplotlib==3.8.3
 mdurl==0.1.2
 mecab-python3==1.0.8
+more-itertools==10.2.0
 mpmath==1.3.0
 multidict==6.0.5
 networkx==3.2.1
@@ -175,6 +176,7 @@ torchaudio==2.2.1
 torchmetrics==1.3.2
 tqdm==4.66.2
 transformers==4.39.1
+typeguard==4.3.0
 typer==0.11.0
 typing_extensions==4.10.0
 tzdata==2024.1

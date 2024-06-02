@@ -3,7 +3,7 @@
 学習すれば誰の声でもそっくりに、LLMを用いて会話できます。
 
 # Version
-python3.9.7
+python3.9.17
 
 ## 動かし方
 ```
@@ -13,19 +13,27 @@ python3 initialize.py
 python3 main.py
 ```
 
+## 環境構築について
+simpleaudioのインストールにした場合は以下を試してみてください。
+```
+pip install simpleaudio --use-pep517
+```
+
 ```initialize.py```では日本語以外のモデルもダウンロードされる可能性があります。
 不要な場合は引数で指定するか、モデルを削除してください。
 
-gradioのインストールでhashに関するエラーが出たら以下を実行すると解決するかもしれません。
+
+ラズパイ環境で動かすには以下のインストールが必要でした。
 ```
-pip download gradio==4.23.0 -d .
-shasum -a 256 gradio-4.23.0-py3-none-any.whl
+sudo apt install python3-dev build-essential default-libmysqlclient-dev
+sudo apt install libncursesw5-dev libgdbm-dev libc6-dev libctypes-ocaml-dev zlib1g-dev libsqlite3-dev tk-dev 
+sudo apt install libssl1.1 libssl1.1=1.1.1f-1ubuntu2 libssl-dev libmysqlclient-dev
+sudo apt install librust-libsodium-sys-dev
+sudo apt-get install libffi-dev
+sudo apt-get install libasound2-dev
+sudo apt-get install libportaudio2
 ```
 
-```
-pip download jieba==0.42.1 -d .
-shasum -a 256 jieba-0.42.1-py3-none-any.whl
-```
 
 [issue](https://github.com/pytorch/pytorch/issues/104598)にあるように、比較的大きいサイズのパッケージは失敗する可能性があるようです。
 
