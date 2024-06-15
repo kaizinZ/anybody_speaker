@@ -46,3 +46,9 @@ DEFAULT_ASSIST_TEXT_WEIGHT = 1.0
 ## Built-in theme: "default", "base", "monochrome", "soft", "glass"
 ## See https://huggingface.co/spaces/gradio/theme-gallery for more themes
 GRADIO_THEME = "NoCrypt/miku"
+
+# LLMに投げるメッセージの先頭に毎回加える文章
+PREFIX_MESSAGE = "あなたは加藤純一.タメ口で話す必要あり,敬語は禁止.返答は簡潔に短くまとめ,英単語は日本語の読み方に直すこと."
+
+# main.pyの起動音
+INIT_SOUND_PATH = "./wav_files/yaa.wav"

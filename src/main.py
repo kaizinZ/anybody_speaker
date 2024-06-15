@@ -6,14 +6,13 @@ import cProfile
 
 import torch
 import simpleaudio as sa
+import sounddevice as sd
 import numpy as np
 from scipy.io import wavfile
 
 from constants import (
-    DEFAULT_LENGTH,
-    DEFAULT_NOISE,
-    DEFAULT_NOISEW,
-    DEFAULT_SDP_RATIO,
+    PREFIX_MESSAGE,
+    INIT_SOUND_PATH,
     Languages,
 )
 from custom_logging import logger, log_memory_usage
@@ -27,10 +26,10 @@ from speech2text import query_speech2text_api
 # 事前に BERT モデル/トークナイザーをロードしておく
 bert_models.load_model(Languages.JP)
 bert_models.load_tokenizer(Languages.JP)
-#bert_models.load_model(Languages.EN)
-#bert_models.load_tokenizer(Languages.EN)
-#bert_models.load_model(Languages.ZH)
-#bert_models.load_tokenizer(Languages.ZH)
+# bert_models.load_model(Languages.EN)
+# bert_models.load_tokenizer(Languages.EN)
+# bert_models.load_model(Languages.ZH)
+# bert_models.load_tokenizer(Languages.ZH)
 
 # model_assets ディレクトリのパス
 model_assets_dir = "./model_assets/"
@@ -55,10 +54,16 @@ parser.add_argument(
 parser.add_argument(
     "--tts", "-t", type=str, help="tts model assignment", default=default_model, choices=model_assets_names
 )
-
 parser.add_argument(
     "--is_multi", "-m", help="use multiple speakers", action="store_true"
 )
+parser.add_argument(
+    "--input_device", "-i", help="input sound device\nPlease run bluetooth_sound_device.py.", type=int,
+)
+parser.add_argument(
+    "--output_device", "-o", help="output sound device\nPlease run bluetooth_sound_device.py.", type=int,
+)
+
 
 prefix_message = "あなたは加藤純一.タメ口で話す必要あり,敬語は禁止.返答は簡潔に短くまとめる必要あり.英単語は日本語の読み方に直すこと."
 init_voice_path = "./wav_files/yaa.wav"
@@ -131,13 +136,20 @@ def generate_audio_multiple_speakers(text, loaded_models, model_id=0, language=L
     sr, audio = model.infer(text=text, language=language, **kwargs)
     return sr, audio
 
-
-def play_audio(sr: int, audio: np.ndarray):
+    """
+    def play_audio(sr: int, audio: np.ndarray):
     # オーディオデータをバイト列に変換する
     audio_bytes = audio.tobytes()
     audio_obj = sa.play_buffer(audio_bytes, num_channels=1, bytes_per_sample=2, sample_rate=sr)
     audio_obj.wait_done()
+    """
 
+
+def play_audio(sr: int, audio: np.ndarray, device_id: int):
+    # オーディオデータを指定されたデバイスで再生する
+    sd.play(audio, samplerate=sr, device=device_id)
+    sd.wait()  # 再生終了まで待機
+    
 
 def main():
     args = parser.parse_args()
@@ -146,16 +158,28 @@ def main():
         device = "cpu"
     else:
         device = "cuda" if torch.cuda.is_available() else "cpu"
+    
+    if args.input_device:
+        input_sound_device = args.input_device
+    else:
+        input_sound_device = sd.default.device[0]
+    
+    if args.output_device:
+        output_sound_device = args.output_device
+    else:
+        output_sound_device = sd.default.device[1]
         
     # LLMのAPIを利用するためのインスタンス生成
     if args.llm == "chatgpt":
         llm = ChatGPT(api_key=os.getenv("OPENAI_API_KEY"), messages=None, stream=False)
     elif args.llm == "claude":
-        llm = Claude(prefix_message=prefix_message, stream=False)
+        llm = Claude(prefix_message=PREFIX_MESSAGE, stream=False)
+    else:
+        logger.error(f"LLM {args.llm} not found.")
 
     # モデル読み込み
     model_dir = Path(args.dir)
-    model_holder = TTSModelHolder(model_dir, device)
+    model_holder = TTSModelHolder(model_dir, device=device)
     if len(model_holder.model_names) == 0:
         logger.error(f"Models not found in {model_dir}.")
         sys.exit(1)
@@ -178,12 +202,17 @@ def main():
         text = "やあ。"
         sr, audio = generate_audio_single_speaker(text, loaded_model)
         #wavfile.write(init_voice_path, sr, audio)
-        play_until_the_end(init_voice_path)
+        play_until_the_end(INIT_SOUND_PATH, output_sound_device)
     
     # ユーザーからの音声入力待機
     while True:
-        wait_for_trigger()
-        start_recording()
+        wait_for_trigger(input_device=input_sound_device)
+        start_recording(input_device=input_sound_device, output_device=output_sound_device)
+        text = "やっぱ若いっていいなあでも、なんかそんなあれがまかり通るんだもんな、あいつ25くらいだろ？30なんだ。あそっか、止まるんだよ。まあ極論言っちゃえばもう本人の。"
+        sr, audio = generate_audio_single_speaker(text, loaded_model)
+
+        play_audio(sr, audio, device_id=output_sound_device)
+        sys.exit(0)
         
         # 音声をspeech-to-text APIで文章に変換
         prompt = query_speech2text_api("./wav_files/recording.wav")
@@ -194,19 +223,22 @@ def main():
         # LLMが生成した文章を取得
         ans_text = llm.get_messages()[-1]['content']
 
+        # test
+        ans_text = prompt
+        
         # 取得した文章で音声合成
         if args.is_multi:
             sr, audio = generate_audio_multiple_speakers(ans_text, loaded_model, model_id=model_id) #, speaker_id=0)
         else:
             sr, audio = generate_audio_single_speaker(ans_text, loaded_model)
-        play_audio(sr, audio)
+        play_audio(sr, audio, output_sound_device)
 
 
     # 使用例
     text = "やっぱ若いっていいなあでも、なんかそんなあれがまかり通るんだもんな、あいつ25くらいだろ？30なんだ。あそっか、止まるんだよ。まあ極論言っちゃえばもう本人の。"
-    sr, audio = generate_audio(text, loaded_models, model_id=1) #, speaker_id=0)
+    sr, audio = generate_audio(text, loaded_model)
 
-    play_audio(sr, audio)
+    play_audio(sr, audio, device_id=output_sound_device)
     
     # 音声をファイルに保存する場合
     wavfile.write("output.wav", sr, audio)
@@ -214,4 +246,4 @@ def main():
     
 if __name__ == "__main__":
     main()
-    cProfile.run('main()')
+    # cProfile.run('main()')

@@ -3,6 +3,7 @@ import json
 import time
 
 import sounddevice as sd
+import soundfile as sf
 import vosk
 import numpy as np
 import MeCab
@@ -13,10 +14,10 @@ from custom_logging import logger
 
 
 # マイクの設定
-device = sd.default.device  # デフォルトのマイクデバイスを使用
 channels = 1  # モノラル録音
 sample_rate = 16000  # サンプリングレート（Voskの推奨値）
 blocksize = 1024  # バッファサイズ（サンプル数）
+vosk_blocksize = 1024 * 8 # Voskのバッファサイズ（サンプル数）
 
 # 入力の閾値
 silence_threshold = 0.1  # 無音の閾値（適宜調整）
@@ -36,6 +37,7 @@ audio_queue = queue.Queue()
 pygame.mixer.init()
 pygame.mixer.music.set_volume(0.5)  # 音量を50%に設定
 
+
 def convert_to_katakana(text):
     tagger = MeCab.Tagger("-Oyomi -d /opt/homebrew-x86_64/lib/mecab/dic/ipadic")  # ヨミ（読み）出力モードを指定
     result = tagger.parse(text)
@@ -48,20 +50,25 @@ def callback(indata, frames, time, status):
     """マイクからのオーディオデータをキューに追加するコールバック関数"""
     if status:
         print(status)
+    volume_norm = np.linalg.norm(indata) * 10
+    #logger.info(f"data: {indata[:20]}")
+    #logger.info(f"Volume: {volume_norm}")
     audio_queue.put(bytes(indata))
 
 
-def wait_for_trigger():
+def wait_for_trigger(input_device):
     """特定の用語が音声として入力されるまで待機する関数"""
     logger.info("wait for input voice [カトクサ, オイカトウ]...")
+    logger.info(sd.query_devices())
+    logger.info(input_device)
 
-    with sd.RawInputStream(samplerate=sample_rate, blocksize=8000, device=device, dtype='int16', channels=channels, callback=callback):
+    with sd.InputStream(samplerate=sample_rate, blocksize=vosk_blocksize, device=input_device, dtype='int16', channels=channels, callback=callback):
         while True:
             data = audio_queue.get()
             if recognizer.AcceptWaveform(data):
                 result = json.loads(recognizer.Result())
                 text = result['text']
-                print(text)
+                logger.info(text)
                 text_katakana = convert_to_katakana(text)  # 認識結果をカタカナに変換
                 if text_katakana == '':
                     continue
@@ -71,11 +78,13 @@ def wait_for_trigger():
                     break
                 
 
-def play_until_the_end(wav_path: str):
-    pygame.mixer.music.load(wav_path)
-    pygame.mixer.music.play()
-    while pygame.mixer.music.get_busy():
-        pygame.time.delay(100)
+def play_until_the_end(wav_path: str, device_id: int):
+    # WAVファイルを読み込む
+    data, samplerate = sf.read(wav_path)
+    
+    # 指定されたデバイスで音声を再生
+    sd.play(data, samplerate=samplerate, device=device_id)
+    sd.wait()  # 再生終了まで待機
     
 
 def store_wav(recording, output_path):
@@ -84,20 +93,18 @@ def store_wav(recording, output_path):
     
 
 # 録音を開始する関数
-def start_recording():
+def start_recording(input_device: int, output_device: int):
     logger.info("start recording...")
     recording = []
     silence_start_time = None
     is_recording = False
 
     # 録音開始の効果音を鳴らす
-    play_until_the_end("./wav_files/start_sound.wav")
+    play_until_the_end("./wav_files/start_sound.wav", device_id=output_device)
     
     # ストリームを開始
-    with sd.InputStream(samplerate=sample_rate, channels=channels, blocksize=blocksize, dtype=np.float32) as stream:
-        while True:
-            # 時間の計測を開始
-            
+    with sd.InputStream(samplerate=sample_rate, channels=channels, blocksize=blocksize, dtype=np.float32, device=input_device) as stream:
+        while True:   
             # ストリームからデータを読み込む
             data, overflowed = stream.read(blocksize)
 
@@ -125,7 +132,7 @@ def start_recording():
                 silence_time = time.time() - silence_start_time
                 if silence_time > silence_duration:
                     # 録音終了の効果音を鳴らす
-                    play_until_the_end("./wav_files/end_sound.wav")
+                    play_until_the_end("./wav_files/end_sound.wav", device_id=output_device)
                     break
                 elif silence_time > silence_timeout:
                     break
