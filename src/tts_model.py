@@ -29,7 +29,6 @@ from models.models import SynthesizerTrn
 from models.models_jp_extra import (
     SynthesizerTrn as SynthesizerTrnJPExtra,
 )
-from nlp import bert_models
 from voice import adjust_voice
 
 

@@ -4,7 +4,6 @@ from pathlib import Path
 import sys
 
 import torch
-import simpleaudio as sa
 import sounddevice as sd
 import numpy as np
 from scipy.io import wavfile
@@ -23,7 +22,7 @@ from speech2text import query_speech2text_api
 
 
 # 事前に BERT モデル/トークナイザーをロードしておく
-bert_models.load_model(Languages.JP)
+bert_models.load_model(Languages.JP, pretrained_model_name_or_path='../bert/deberta-v2-large-japanese-char-wwm')
 bert_models.load_tokenizer(Languages.JP)
 # bert_models.load_model(Languages.EN)
 # bert_models.load_tokenizer(Languages.EN)
@@ -132,14 +131,6 @@ def generate_audio_multiple_speakers(text, loaded_models, model_id=0, language=L
     sr, audio = model.infer(text=text, language=language, **kwargs)
     return sr, audio
 
-    """
-    def play_audio(sr: int, audio: np.ndarray):
-    # オーディオデータをバイト列に変換する
-    audio_bytes = audio.tobytes()
-    audio_obj = sa.play_buffer(audio_bytes, num_channels=1, bytes_per_sample=2, sample_rate=sr)
-    audio_obj.wait_done()
-    """
-
 
 def play_audio(sr: int, audio: np.ndarray, device_id: int):
     # オーディオデータを指定されたデバイスで再生する
@@ -203,8 +194,12 @@ def main():
     # ユーザーからの音声入力待機
     while True:
         wait_for_trigger(input_device=input_sound_device)
-        start_recording(input_device=input_sound_device, output_device=output_sound_device)
+        is_success = start_recording(input_device=input_sound_device, output_device=output_sound_device)
         
+        # 録音を開始したが無音だった場合はトリガー検知に戻る
+        if not is_success:
+            continue
+
         # 音声をspeech-to-text APIで文章に変換
         prompt = query_speech2text_api("./wav_files/recording.wav")
         

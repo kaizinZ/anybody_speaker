@@ -9,7 +9,6 @@ import vosk
 import numpy as np
 import MeCab
 import scipy.io.wavfile as wavfile
-import pygame
 
 from custom_logging import logger
 
@@ -26,7 +25,7 @@ silence_duration = 2.0  # 無音と判断する連続秒数
 silence_timeout = 10 # タイムアウトまでの連続秒数
 
 # トリガーワード #TODO: 文字列で指定する必要あり
-trigger_word = []
+trigger_word = ["こんにちは"]
 
 # 音声認識の設定
 model = vosk.Model("./vosk_model")
@@ -34,9 +33,6 @@ recognizer = vosk.KaldiRecognizer(model, sample_rate)
 
 # マイクからの入力を処理するためのキュー
 audio_queue = queue.Queue()
-
-pygame.mixer.init()
-pygame.mixer.music.set_volume(0.5)  # 音量を50%に設定
 
 
 def convert_to_katakana(text):
@@ -51,9 +47,6 @@ def callback(indata, frames, time, status):
     """マイクからのオーディオデータをキューに追加するコールバック関数"""
     if status:
         print(status)
-    volume_norm = np.linalg.norm(indata) * 10
-    # logger.info(f"data: {indata[:20]}")
-    # logger.info(f"Volume: {volume_norm}")
     audio_queue.put(bytes(indata))
 
 
@@ -121,7 +114,12 @@ def start_recording(input_device: int, output_device: int):
             
             # 最大振幅が無音の閾値を下回った場合、無音カウンターを増やす
             if max_amplitude < silence_threshold:
+                # 入力がされず、無音の時間が閾値以上であれば処理を中止
                 if not is_recording:
+                    if silence_start_time:
+                        silence_time = time.time() - silence_start_time
+                        if silence_time > silence_timeout:
+                            return False
                     continue
                 
                 # 無音であるが、録音に音声の適切な間を含める
@@ -138,8 +136,7 @@ def start_recording(input_device: int, output_device: int):
                     # 録音終了の効果音を鳴らす
                     play_until_the_end("./wav_files/end_sound.wav", device_id=output_device)
                     break
-                elif silence_time > silence_timeout:
-                    break
+                
             else:
                 recording.append(data.copy())
                 if not is_recording:
@@ -154,5 +151,4 @@ def start_recording(input_device: int, output_device: int):
     # 録音データを保存
     store_wav(recording, output_path="./wav_files/recording.wav")
 
-
-
+    return True
