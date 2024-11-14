@@ -83,6 +83,7 @@ def load_model(
             ),
         )
     else:
+        logger.info(str(DEFAULT_BERT_TOKENIZER_PATHS[language]))
         model = AutoModelForMaskedLM.from_pretrained(
             pretrained_model_name_or_path, cache_dir=cache_dir, revision=revision
         )

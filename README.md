@@ -30,6 +30,7 @@ sudo apt install clang
 sudo apt install libasound2-dev
 sudo apt-get install libportaudio2
 sudo apt-get install portaudio19-dev
+sudo apt install -y alsa-utils
 
 uv add -r requirements.txt
 cd src

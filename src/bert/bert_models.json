@@ -2,9 +2,5 @@
     "deberta-v2-large-japanese-char-wwm": {
         "repo_id": "ku-nlp/deberta-v2-large-japanese-char-wwm",
         "files": ["pytorch_model.bin"]
-    },
-    "deberta-v3-large": {
-        "repo_id": "microsoft/deberta-v3-large",
-        "files": ["spm.model", "pytorch_model.bin"]
     }
 }

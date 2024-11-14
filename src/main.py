@@ -22,7 +22,7 @@ from speech2text import query_speech2text_api
 
 
 # 事前に BERT モデル/トークナイザーをロードしておく
-bert_models.load_model(Languages.JP, pretrained_model_name_or_path='../bert/deberta-v2-large-japanese-char-wwm')
+bert_models.load_model(Languages.JP, pretrained_model_name_or_path='./bert/deberta-v2-large-japanese-char-wwm/')
 bert_models.load_tokenizer(Languages.JP)
 # bert_models.load_model(Languages.EN)
 # bert_models.load_tokenizer(Languages.EN)

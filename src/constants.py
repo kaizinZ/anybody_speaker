@@ -7,7 +7,7 @@ from utils.strenum import StrEnum
 VERSION = "2.4.1"
 
 # Style-Bert-VITS2 のベースディレクトリ
-BASE_DIR = Path(__file__).parent.parent
+BASE_DIR = Path(__file__).parent
 
 
 # 利用可能な言語
