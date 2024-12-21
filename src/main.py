@@ -48,6 +48,9 @@ parser.add_argument(
     "--dir", "-d", type=str, help="Model directory", default=model_assets_dir
 )
 parser.add_argument(
+    "--windows", "-w", type=str, help="Operation System", default="windows"
+)
+parser.add_argument(
     "--llm", "-l", type=str, help="llm assignment", default="chatgpt", choices=["chatgpt", "claude"]
 )
 parser.add_argument(

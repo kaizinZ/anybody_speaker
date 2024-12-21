@@ -36,7 +36,7 @@ audio_queue = queue.Queue()
 
 
 def convert_to_katakana(text):
-    tagger = MeCab.Tagger("-Oyomi -d /opt/homebrew-x86_64/lib/mecab/dic/ipadic")  # ヨミ（読み）出力モードを指定
+    tagger = MeCab.Tagger("-Oyomi -d 'C:\Program Files\MeCab\dic\ipadic'")  # ヨミ（読み）出力モードを指定
     result = tagger.parse(text)
     katakana_text = result.rstrip()
     katakana_text = katakana_text.replace(' ', '')

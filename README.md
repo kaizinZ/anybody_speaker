@@ -7,7 +7,7 @@
 本リポジトリの利用についてはご自身の責任でお願いいたします。
 
 # Version
-python3.9.13
+python3.10.15
 
 ## download vosk_model
 オフラインで動作する音声認識モデルのダウンロードが必要です。
@@ -18,20 +18,17 @@ https://alphacephei.com/vosk/models/vosk-model-small-ja-0.22.zip
 
 ダウンロード後、ディレクトリ名をvosk_modelに変更し、```src```下に配置する必要があります。
 
+## MeCabのインストール
+以下のリンクからMeCabをダウンロードして実行してください。
+https://github.com/ikegami-yukino/mecab/releases/tag/v0.996.2
+
 ## 動かし方
 
-For ubuntu
+For windows
 本リポジトリはpythonバージョンの管理にuvを使用しています。
 事前にuvをインストールしてください。
 
 ```bash
-sudo apt update
-sudo apt install clang
-sudo apt install libasound2-dev
-sudo apt-get install libportaudio2
-sudo apt-get install portaudio19-dev
-sudo apt install -y alsa-utils
-
 uv add -r requirements.txt
 cd src
 python3 initialize.py

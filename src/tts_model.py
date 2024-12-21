@@ -39,7 +39,7 @@ class TTSModel:
     """
 
     def __init__(
-        self, model_path: Path, config_path: Path, style_vec_path: Path, device: str
+        self, model_path: Path, config_path: Path, style_vec_path: Path, device: str, os: str = 'windows'
     ) -> None:
         """
         Style-Bert-Vits2 の音声合成モデルを初期化する。
@@ -61,6 +61,7 @@ class TTSModel:
         )
         self.spk2id: dict[str, int] = self.hyper_parameters.data.spk2id
         self.id2spk: dict[int, str] = {v: k for k, v in self.spk2id.items()}
+        self.os: str = os
 
         num_styles: int = self.hyper_parameters.data.num_styles
         if hasattr(self.hyper_parameters.data, "style2id"):
@@ -102,6 +103,8 @@ class TTSModel:
         Returns:
             str: モデル名
         """
+        if self.os == 'windows':
+            return str(self.model_path).split('\\')[1]
         return str(self.model_path).split('/')[1]
 
     def __get_style_vector(self, style_id: int, weight: float = 1.0) -> NDArray[Any]:
