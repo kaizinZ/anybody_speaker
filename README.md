@@ -9,7 +9,6 @@
 # Version
 python3.10.15
 
-
 ## download vosk_model
 オフラインで動作する音声認識モデルのダウンロードが必要です。
 

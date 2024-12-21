@@ -94,7 +94,7 @@ def store_wav(recording, output_path):
 def start_recording(input_device: int, output_device: int):
     logger.info("start recording...")
     recording = []
-    silence_start_time = None
+    silence_start_time = time.time()
     is_recording = False
 
     # 録音開始の効果音を鳴らす
